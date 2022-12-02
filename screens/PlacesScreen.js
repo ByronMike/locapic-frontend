@@ -16,12 +16,14 @@ export default function PlacesScreen() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.value);
 
+  // 1) Création de la variable d'état city
   const [city, setCity] = useState("");
 
   const handleSubmit = () => {
+    // 2) Lorsqu'on rentre des données dans l'input de PlacesScreen on fetch les données du backend pour récupérer les informations relatives à la ville
     if (city.length === 0) {
       return;
-    } // 1st request : get geographic data from API
+    } 
     fetch(`https://api-adresse.data.gouv.fr/search/?q=${city}`)
       .then((response) => response.json())
       .then((data) => {
@@ -29,12 +31,15 @@ export default function PlacesScreen() {
         if (data.features.length === 0) {
           return;
         }
+        // 3) On créé un objet à partir des données du fetch
         const fistCity = data.features[0];
         const newPlace = {
           name: fistCity.properties.city,
           latitude: fistCity.geometry.coordinates[1],
           longitude: fistCity.geometry.coordinates[0],
-        }; // 2nd request : send new place to backend to register it in database
+        }; 
+
+        // 4) On utilise les informations enregistrées dans l'objet newPlace pour sauvegarder en BDD (fetch Post)...
         fetch("https://locapic-backend-psi.vercel.app/places", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -47,7 +52,7 @@ export default function PlacesScreen() {
         })
           .then((response) => response.json())
           .then((data) => {
-            // Dispatch in Redux store if the new place have been registered in database
+            // 4)bis .. et aussi dans le reducer (pour affichage dans l'app)
             if (data.result) {
               dispatch(addPlace(newPlace));
               setCity("");
@@ -56,6 +61,7 @@ export default function PlacesScreen() {
       });
   };
 
+  // 5) On supprime les données dans la BDD..
   const handleDelete = (placeName) => {
     fetch("https://locapic-backend-psi.vercel.app/places", {
       method: "DELETE",
@@ -64,6 +70,7 @@ export default function PlacesScreen() {
     })
       .then((response) => response.json())
       .then((data) => {
+        // 5)bis .. et aussi dans le reducer (dans l'appli)
         data.result && dispatch(removePlace(placeName));
       });
   };
@@ -116,62 +123,4 @@ export default function PlacesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f2f2f2",
-    alignItems: "center",
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "600",
-    marginTop: 30,
-    marginBottom: 20,
-  },
-  scrollView: {
-    alignItems: "center",
-    paddingBottom: 20,
-  },
-  card: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    width: "80%",
-    backgroundColor: "#ffffff",
-    padding: 20,
-    marginTop: 20,
-    borderRadius: 10,
-  },
-  name: {
-    fontSize: 18,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    width: "80%",
-    backgroundColor: "#ffffff",
-    padding: 20,
-    marginTop: 20,
-    borderRadius: 10,
-  },
-  input: {
-    width: "65%",
-    marginTop: 6,
-    borderBottomColor: "#ec6e5b",
-    borderBottomWidth: 1,
-    fontSize: 16,
-  },
-  button: {
-    width: "30%",
-    alignItems: "center",
-    paddingTop: 8,
-    backgroundColor: "#ec6e5b",
-    borderRadius: 10,
-  },
-  textButton: {
-    color: "#ffffff",
-    height: 24,
-    fontWeight: "600",
-    fontSize: 15,
-  },
 });

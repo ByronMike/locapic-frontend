@@ -21,6 +21,7 @@ export const userSlice = createSlice({
       );
     },
 
+    // Fonction du reducer pour pusher PLUSIEURS objets 
     importPlaces: (state, action) => {
       state.value.places.push(...action.payload);
     },

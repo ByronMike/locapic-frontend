@@ -38,15 +38,17 @@ export default function MapScreen() {
     setModalVisible(true);
   };
 
+  // 1) On fetch les données du backend (get en params) DANS un useEffect
   useEffect(() => {
     fetch(`https://locapic-backend-psi.vercel.app/places/${user.nickname}`)
       .then((response) => response.json())
       .then((data) => {
+        // 2) On passe en paramètre pour le reducer la sortie du fetch (data.places)
         data.result && dispatch(importPlaces(data.places));
-        // importPlaces is a new order to create in reducers/user.js
       });
   }, []);
 
+  // 3) Fetch en méthode Post pour enregistrer en BDD les informations utiles..
   const handleNewPlace = () => {
     fetch("https://locapic-backend-psi.vercel.app/places", {
       method: "POST",
@@ -61,6 +63,7 @@ export default function MapScreen() {
       .then((response) => response.json())
       .then((data) => {
         if (data.result) {
+          // 3)bis .. ainsi que dans le reducer
           dispatch(
             addPlace({
               name: newPlace,
